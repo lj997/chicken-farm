@@ -3,6 +3,7 @@ import EntryRecord from '../views/EntryRecord.vue'
 import BreedingStatus from '../views/BreedingStatus.vue'
 import CostRecord from '../views/CostRecord.vue'
 import ProfitPage from '../views/ProfitPage.vue'
+import AiConfig from '../views/AiConfig.vue'
 
 const routes = [
   {
@@ -28,6 +29,11 @@ const routes = [
     path: '/profit',
     name: 'Profit',
     component: ProfitPage
+  },
+  {
+    path: '/config',
+    name: 'Config',
+    component: AiConfig
   }
 ]
 

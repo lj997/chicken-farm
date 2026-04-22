@@ -60,7 +60,7 @@ import { logout } from './api/auth'
 const route = useRoute()
 const router = useRouter()
 
-const username = ref('admin')
+const username = computed(() => sessionStorage.getItem('username') || '')
 
 const isLoginPage = computed(() => route.path === '/login')
 
@@ -88,6 +88,7 @@ const handleLogout = () => {
       console.error('Logout error:', err)
     }).finally(() => {
       sessionStorage.removeItem('token')
+      sessionStorage.removeItem('username')
       router.push('/login')
     })
   }).catch(() => {

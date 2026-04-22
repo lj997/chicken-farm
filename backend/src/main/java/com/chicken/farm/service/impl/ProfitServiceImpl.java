@@ -1,6 +1,7 @@
 package com.chicken.farm.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.chicken.farm.common.UserContext;
 import com.chicken.farm.dto.ProfitCalculateDTO;
 import com.chicken.farm.entity.BreedingStatus;
 import com.chicken.farm.entity.EntryRecord;
@@ -28,8 +29,14 @@ public class ProfitServiceImpl implements ProfitService {
 
     @Override
     public ProfitVO calculateProfit(ProfitCalculateDTO dto) {
+        Long userId = UserContext.getUserId();
+        if (userId == null) {
+            throw new RuntimeException("用户未登录");
+        }
+        
         EntryRecord entryRecord = entryRecordMapper.selectOne(
                 new LambdaQueryWrapper<EntryRecord>()
+                        .eq(EntryRecord::getUserId, userId)
                         .orderByDesc(EntryRecord::getId)
                         .last("LIMIT 1")
         );
@@ -40,6 +47,7 @@ public class ProfitServiceImpl implements ProfitService {
 
         BreedingStatus latestStatus = breedingStatusMapper.selectOne(
                 new LambdaQueryWrapper<BreedingStatus>()
+                        .eq(BreedingStatus::getUserId, userId)
                         .orderByDesc(BreedingStatus::getRecordDate)
                         .last("LIMIT 1")
         );
@@ -55,7 +63,7 @@ public class ProfitServiceImpl implements ProfitService {
                 .multiply(BigDecimal.valueOf(survivalCount))
                 .multiply(dto.getMarketPrice());
         
-        BigDecimal totalCost = costRecordMapper.getTotalCost();
+        BigDecimal totalCost = costRecordMapper.getTotalCost(userId);
         if (totalCost == null) {
             totalCost = BigDecimal.ZERO;
         }

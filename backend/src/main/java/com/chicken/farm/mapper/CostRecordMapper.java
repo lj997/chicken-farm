@@ -15,17 +15,17 @@ import java.util.Map;
 public interface CostRecordMapper extends BaseMapper<CostRecord> {
     
     @Select("SELECT category, SUM(amount) as total FROM cost_record " +
-            "WHERE record_date = #{date} GROUP BY category")
-    List<Map<String, Object>> getDailySummary(@Param("date") LocalDate date);
+            "WHERE user_id = #{userId} AND record_date = #{date} GROUP BY category")
+    List<Map<String, Object>> getDailySummary(@Param("userId") Long userId, @Param("date") LocalDate date);
     
     @Select("SELECT category, SUM(amount) as total FROM cost_record " +
-            "WHERE YEAR(record_date) = #{year} AND MONTH(record_date) = #{month} GROUP BY category")
-    List<Map<String, Object>> getMonthlySummary(@Param("year") int year, @Param("month") int month);
+            "WHERE user_id = #{userId} AND YEAR(record_date) = #{year} AND MONTH(record_date) = #{month} GROUP BY category")
+    List<Map<String, Object>> getMonthlySummary(@Param("userId") Long userId, @Param("year") int year, @Param("month") int month);
     
     @Select("SELECT category, SUM(amount) as total FROM cost_record " +
-            "WHERE record_date <= #{date} GROUP BY category")
-    List<Map<String, Object>> getSummaryToDate(@Param("date") LocalDate date);
+            "WHERE user_id = #{userId} AND record_date <= #{date} GROUP BY category")
+    List<Map<String, Object>> getSummaryToDate(@Param("userId") Long userId, @Param("date") LocalDate date);
     
-    @Select("SELECT SUM(amount) FROM cost_record")
-    BigDecimal getTotalCost();
+    @Select("SELECT SUM(amount) FROM cost_record WHERE user_id = #{userId}")
+    BigDecimal getTotalCost(@Param("userId") Long userId);
 }

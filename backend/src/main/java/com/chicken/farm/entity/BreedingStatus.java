@@ -15,6 +15,8 @@ public class BreedingStatus {
     @TableId(type = IdType.AUTO)
     private Long id;
     
+    private Long userId;
+    
     private LocalDate recordDate;
     
     private BigDecimal avgWeight;

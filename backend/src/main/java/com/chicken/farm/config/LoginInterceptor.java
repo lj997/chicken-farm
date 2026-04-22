@@ -1,5 +1,7 @@
 package com.chicken.farm.config;
 
+import com.chicken.farm.common.UserContext;
+import com.chicken.farm.entity.User;
 import com.chicken.farm.utils.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -22,6 +24,15 @@ public class LoginInterceptor implements HandlerInterceptor {
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
             if (JwtUtil.validateToken(token)) {
+                Long userId = JwtUtil.getUserId(token);
+                String username = JwtUtil.getUsername(token);
+                
+                if (userId != null) {
+                    User user = new User();
+                    user.setId(userId);
+                    user.setUsername(username);
+                    UserContext.setUser(user);
+                }
                 return true;
             }
         }
@@ -30,5 +41,10 @@ public class LoginInterceptor implements HandlerInterceptor {
         response.setContentType("application/json;charset=UTF-8");
         response.getWriter().write("{\"code\":401,\"message\":\"未登录或登录已过期\",\"data\":null}");
         return false;
+    }
+    
+    @Override
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
+        UserContext.clear();
     }
 }

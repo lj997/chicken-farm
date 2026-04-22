@@ -9,6 +9,8 @@ public class ProfitVO {
     
     private BigDecimal marketPrice;
     
+    private BigDecimal referenceMarketPrice;
+    
     private BigDecimal avgWeight;
     
     private Integer survivalCount;
@@ -18,4 +20,6 @@ public class ProfitVO {
     private BigDecimal totalCost;
     
     private BigDecimal estimatedProfit;
+    
+    private String breed;
 }

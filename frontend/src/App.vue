@@ -27,6 +27,10 @@
           <el-icon><Money /></el-icon>
           <span>预期盈利</span>
         </el-menu-item>
+        <el-menu-item index="/config">
+          <el-icon><Setting /></el-icon>
+          <span>大模型配置</span>
+        </el-menu-item>
       </el-menu>
     </el-aside>
     <el-container>
@@ -43,7 +47,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { Document, TrendCharts, Wallet, Money } from '@element-plus/icons-vue'
+import { Document, TrendCharts, Wallet, Money, Setting } from '@element-plus/icons-vue'
 
 const route = useRoute()
 
@@ -54,7 +58,8 @@ const currentTitle = computed(() => {
     '/entry': '入栏详情',
     '/breeding': '养殖现状',
     '/cost': '养殖成本开销',
-    '/profit': '预期盈利'
+    '/profit': '预期盈利',
+    '/config': '大模型配置'
   }
   return titles[route.path] || '养鸡场管理平台'
 })

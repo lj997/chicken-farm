@@ -19,7 +19,7 @@ public interface CostRecordMapper extends BaseMapper<CostRecord> {
     List<Map<String, Object>> getDailySummary(@Param("date") LocalDate date);
     
     @Select("SELECT category, SUM(amount) as total FROM cost_record " +
-            "WHERE YEAR(record_date) = #{year} AND MONTH(record_date) = #{month} GROUP BY category")
+            "WHERE EXTRACT(YEAR FROM record_date) = #{year} AND EXTRACT(MONTH FROM record_date) = #{month} GROUP BY category")
     List<Map<String, Object>> getMonthlySummary(@Param("year") int year, @Param("month") int month);
     
     @Select("SELECT category, SUM(amount) as total FROM cost_record " +

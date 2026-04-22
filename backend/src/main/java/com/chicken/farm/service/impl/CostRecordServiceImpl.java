@@ -82,9 +82,14 @@ public class CostRecordServiceImpl extends ServiceImpl<CostRecordMapper, CostRec
 
     private List<CostCategoryVO> buildCategoryVO(List<Map<String, Object>> results) {
         Map<String, BigDecimal> resultMap = results.stream()
+                .filter(r -> getValueIgnoreCase(r, "category") != null)
                 .collect(Collectors.toMap(
-                        r -> (String) r.get("category"),
-                        r -> (BigDecimal) r.get("total")
+                        r -> (String) getValueIgnoreCase(r, "category"),
+                        r -> {
+                            Object total = getValueIgnoreCase(r, "total");
+                            return total != null ? (BigDecimal) total : BigDecimal.ZERO;
+                        },
+                        (existing, replacement) -> existing
                 ));
         
         return CATEGORIES.stream().map(cat -> {
@@ -94,6 +99,21 @@ public class CostRecordServiceImpl extends ServiceImpl<CostRecordMapper, CostRec
             vo.setTotal(resultMap.getOrDefault(cat, BigDecimal.ZERO));
             return vo;
         }).collect(Collectors.toList());
+    }
+    
+    private Object getValueIgnoreCase(Map<String, Object> map, String key) {
+        if (map.containsKey(key)) {
+            return map.get(key);
+        }
+        if (map.containsKey(key.toUpperCase())) {
+            return map.get(key.toUpperCase());
+        }
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            if (entry.getKey().equalsIgnoreCase(key)) {
+                return entry.getValue();
+            }
+        }
+        return null;
     }
 
     private CostRecordVO convertToVO(CostRecord record) {

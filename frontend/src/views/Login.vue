@@ -204,8 +204,13 @@ const switchToRegister = () => {
 
 const handleLoginSuccess = (res) => {
   ElMessage.success(isLoginMode.value ? '登录成功' : '注册成功')
-  if (res.data && res.data.token) {
-    sessionStorage.setItem('token', res.data.token)
+  if (res.data) {
+    if (res.data.token) {
+      sessionStorage.setItem('token', res.data.token)
+    }
+    if (res.data.username) {
+      sessionStorage.setItem('username', res.data.username)
+    }
   }
   const redirect = route.query.redirect || '/entry'
   router.push(redirect)

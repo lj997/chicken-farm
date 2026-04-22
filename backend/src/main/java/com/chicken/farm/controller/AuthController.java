@@ -70,7 +70,7 @@ public class AuthController {
         }
         
         try {
-            User user = ((com.chicken.farm.service.impl.UserServiceImpl) userService).register(registerDTO);
+            User user = userService.register(registerDTO);
             
             String token = JwtUtil.generateToken(user.getId(), user.getUsername());
             

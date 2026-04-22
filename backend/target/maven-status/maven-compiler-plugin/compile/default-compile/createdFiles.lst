@@ -2,7 +2,9 @@ com\chicken\farm\vo\BreedingStatusVO.class
 com\chicken\farm\service\EntryRecordService.class
 com\chicken\farm\service\impl\BreedingStatusServiceImpl.class
 com\chicken\farm\dto\ProfitCalculateDTO.class
+com\chicken\farm\dto\RegisterDTO.class
 com\chicken\farm\controller\CostRecordController.class
+com\chicken\farm\service\UserService.class
 com\chicken\farm\dto\EntryRecordDTO.class
 com\chicken\farm\service\impl\EntryRecordServiceImpl.class
 com\chicken\farm\config\WebConfig.class
@@ -11,6 +13,7 @@ com\chicken\farm\controller\AuthController.class
 com\chicken\farm\controller\BreedingStatusController.class
 com\chicken\farm\entity\CostRecord.class
 com\chicken\farm\utils\JwtUtil.class
+com\chicken\farm\entity\User.class
 com\chicken\farm\controller\EntryRecordController.class
 com\chicken\farm\dto\BreedingStatusDTO.class
 com\chicken\farm\entity\BreedingStatus.class
@@ -20,7 +23,9 @@ com\chicken\farm\dto\LoginDTO.class
 com\chicken\farm\ChickenFarmApplication.class
 com\chicken\farm\service\CostRecordService.class
 com\chicken\farm\mapper\EntryRecordMapper.class
+com\chicken\farm\service\impl\UserServiceImpl.class
 com\chicken\farm\service\ProfitService.class
+com\chicken\farm\mapper\UserMapper.class
 com\chicken\farm\vo\ProfitVO.class
 com\chicken\farm\mapper\CostRecordMapper.class
 com\chicken\farm\service\impl\CostRecordServiceImpl.class
@@ -30,6 +35,7 @@ com\chicken\farm\entity\EntryRecord.class
 com\chicken\farm\service\BreedingStatusService.class
 com\chicken\farm\service\CaptchaService.class
 com\chicken\farm\vo\LoginVO.class
+com\chicken\farm\common\UserContext.class
 com\chicken\farm\service\impl\ProfitServiceImpl.class
 com\chicken\farm\vo\CostCategoryVO.class
 com\chicken\farm\vo\CostRecordVO.class

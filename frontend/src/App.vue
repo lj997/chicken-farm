@@ -30,8 +30,15 @@
       </el-menu>
     </el-aside>
     <el-container>
-      <el-header style="background-color: #fff; border-bottom: 1px solid #e4e7ed; padding: 0 20px">
+      <el-header style="background-color: #fff; border-bottom: 1px solid #e4e7ed; padding: 0 20px; display: flex; justify-content: space-between; align-items: center">
         <h4 style="margin: 0; line-height: 60px; color: #2c3e50">{{ currentTitle }}</h4>
+        <div class="header-right">
+          <span style="margin-right: 16px; color: #606266">欢迎，{{ username }}</span>
+          <el-button type="text" @click="handleLogout">
+            <el-icon><SwitchButton /></el-icon>
+            退出登录
+          </el-button>
+        </div>
       </el-header>
       <el-main style="background-color: #f5f7fa">
         <router-view />
@@ -41,11 +48,16 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { useRoute } from 'vue-router'
-import { Document, TrendCharts, Wallet, Money } from '@element-plus/icons-vue'
+import { computed, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { Document, TrendCharts, Wallet, Money, SwitchButton } from '@element-plus/icons-vue'
+import { logout } from './api/auth'
 
 const route = useRoute()
+const router = useRouter()
+
+const username = ref('admin')
 
 const activeMenu = computed(() => route.path)
 
@@ -58,6 +70,24 @@ const currentTitle = computed(() => {
   }
   return titles[route.path] || '养鸡场管理平台'
 })
+
+const handleLogout = () => {
+  ElMessageBox.confirm('确定要退出登录吗？', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(() => {
+    logout().then(res => {
+      ElMessage.success('已退出登录')
+    }).catch(err => {
+      console.error('Logout error:', err)
+    }).finally(() => {
+      sessionStorage.removeItem('token')
+      router.push('/login')
+    })
+  }).catch(() => {
+  })
+}
 </script>
 
 <style>

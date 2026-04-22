@@ -15,6 +15,8 @@ public class EntryRecord {
     @TableId(type = IdType.AUTO)
     private Long id;
     
+    private Long userId;
+    
     private Integer totalChicks;
     
     private LocalDate entryDate;

@@ -2,6 +2,7 @@ package com.chicken.farm.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.chicken.farm.common.UserContext;
 import com.chicken.farm.dto.CostRecordDTO;
 import com.chicken.farm.entity.CostRecord;
 import com.chicken.farm.mapper.CostRecordMapper;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -30,11 +32,17 @@ public class CostRecordServiceImpl extends ServiceImpl<CostRecordMapper, CostRec
 
     @Override
     public CostRecordVO saveCost(CostRecordDTO dto) {
+        Long userId = UserContext.getUserId();
+        if (userId == null) {
+            throw new RuntimeException("用户未登录");
+        }
+        
         if (!CATEGORIES.contains(dto.getCategory())) {
             throw new RuntimeException("无效的类别");
         }
         
         CostRecord record = new CostRecord();
+        record.setUserId(userId);
         record.setRecordDate(dto.getRecordDate());
         record.setCategory(dto.getCategory());
         record.setAmount(dto.getAmount());
@@ -49,33 +57,54 @@ public class CostRecordServiceImpl extends ServiceImpl<CostRecordMapper, CostRec
 
     @Override
     public List<CostCategoryVO> getDailySummary(String date) {
+        Long userId = UserContext.getUserId();
+        if (userId == null) {
+            return Collections.emptyList();
+        }
         LocalDate localDate = LocalDate.parse(date);
-        List<Map<String, Object>> results = this.baseMapper.getDailySummary(localDate);
+        List<Map<String, Object>> results = this.baseMapper.getDailySummary(userId, localDate);
         return buildCategoryVO(results);
     }
 
     @Override
     public List<CostCategoryVO> getMonthlySummary(int year, int month) {
-        List<Map<String, Object>> results = this.baseMapper.getMonthlySummary(year, month);
+        Long userId = UserContext.getUserId();
+        if (userId == null) {
+            return Collections.emptyList();
+        }
+        List<Map<String, Object>> results = this.baseMapper.getMonthlySummary(userId, year, month);
         return buildCategoryVO(results);
     }
 
     @Override
     public List<CostCategoryVO> getSummaryToDate(String date) {
+        Long userId = UserContext.getUserId();
+        if (userId == null) {
+            return Collections.emptyList();
+        }
         LocalDate localDate = LocalDate.parse(date);
-        List<Map<String, Object>> results = this.baseMapper.getSummaryToDate(localDate);
+        List<Map<String, Object>> results = this.baseMapper.getSummaryToDate(userId, localDate);
         return buildCategoryVO(results);
     }
 
     @Override
     public BigDecimal getTotalCost() {
-        BigDecimal total = this.baseMapper.getTotalCost();
+        Long userId = UserContext.getUserId();
+        if (userId == null) {
+            return BigDecimal.ZERO;
+        }
+        BigDecimal total = this.baseMapper.getTotalCost(userId);
         return total != null ? total : BigDecimal.ZERO;
     }
 
     @Override
     public List<CostRecordVO> getAllRecords() {
+        Long userId = UserContext.getUserId();
+        if (userId == null) {
+            return Collections.emptyList();
+        }
         List<CostRecord> list = this.list(new LambdaQueryWrapper<CostRecord>()
+                .eq(CostRecord::getUserId, userId)
                 .orderByDesc(CostRecord::getRecordDate));
         return list.stream().map(this::convertToVO).collect(Collectors.toList());
     }

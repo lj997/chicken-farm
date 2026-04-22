@@ -13,13 +13,14 @@ public class JwtUtil {
     private static final String SECRET = "chicken-farm-secret-key-2024";
     private static final long EXPIRE_TIME = 24 * 60 * 60 * 1000;
     
-    public static String generateToken(String username) {
+    public static String generateToken(Long userId, String username) {
         Date now = new Date();
         Date expireDate = new Date(now.getTime() + EXPIRE_TIME);
         
         Algorithm algorithm = Algorithm.HMAC256(SECRET);
         return JWT.create()
                 .withSubject(username)
+                .withClaim("userId", userId)
                 .withIssuedAt(now)
                 .withExpiresAt(expireDate)
                 .sign(algorithm);
@@ -40,6 +41,15 @@ public class JwtUtil {
         try {
             DecodedJWT decodedJWT = JWT.decode(token);
             return decodedJWT.getSubject();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    
+    public static Long getUserId(String token) {
+        try {
+            DecodedJWT decodedJWT = JWT.decode(token);
+            return decodedJWT.getClaim("userId").asLong();
         } catch (Exception e) {
             return null;
         }

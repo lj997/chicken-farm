@@ -2,6 +2,7 @@ package com.chicken.farm.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.chicken.farm.common.UserContext;
 import com.chicken.farm.dto.BreedingStatusDTO;
 import com.chicken.farm.entity.BreedingStatus;
 import com.chicken.farm.entity.EntryRecord;
@@ -24,15 +25,21 @@ public class BreedingStatusServiceImpl extends ServiceImpl<BreedingStatusMapper,
 
     @Override
     public BreedingStatusVO saveOrUpdateStatus(BreedingStatusDTO dto) {
-        EntryRecord entryRecord = getEntryRecord();
+        Long userId = UserContext.getUserId();
+        if (userId == null) {
+            throw new RuntimeException("用户未登录");
+        }
+        
+        EntryRecord entryRecord = getEntryRecord(userId);
         if (entryRecord == null) {
             throw new RuntimeException("请先录入入栏详情");
         }
 
         BreedingStatus existing = this.getOne(new LambdaQueryWrapper<BreedingStatus>()
+                .eq(BreedingStatus::getUserId, userId)
                 .eq(BreedingStatus::getRecordDate, dto.getRecordDate()));
 
-        int survivalCount = calculateSurvivalCount(entryRecord.getTotalChicks(), dto);
+        int survivalCount = calculateSurvivalCount(userId, entryRecord.getTotalChicks(), dto);
 
         BreedingStatus status;
         if (existing != null) {
@@ -44,6 +51,7 @@ public class BreedingStatusServiceImpl extends ServiceImpl<BreedingStatusMapper,
             this.updateById(status);
         } else {
             status = new BreedingStatus();
+            status.setUserId(userId);
             status.setRecordDate(dto.getRecordDate());
             status.setAvgWeight(dto.getAvgWeight());
             status.setDeadCount(dto.getDeadCount());
@@ -58,27 +66,38 @@ public class BreedingStatusServiceImpl extends ServiceImpl<BreedingStatusMapper,
 
     @Override
     public List<BreedingStatusVO> getAllStatus() {
+        Long userId = UserContext.getUserId();
+        if (userId == null) {
+            return List.of();
+        }
         List<BreedingStatus> list = this.list(new LambdaQueryWrapper<BreedingStatus>()
+                .eq(BreedingStatus::getUserId, userId)
                 .orderByDesc(BreedingStatus::getRecordDate));
         return list.stream().map(this::convertToVO).collect(Collectors.toList());
     }
 
     @Override
     public BreedingStatusVO getLatestStatus() {
+        Long userId = UserContext.getUserId();
+        if (userId == null) {
+            return null;
+        }
         BreedingStatus status = this.getOne(new LambdaQueryWrapper<BreedingStatus>()
+                .eq(BreedingStatus::getUserId, userId)
                 .orderByDesc(BreedingStatus::getRecordDate)
                 .last("LIMIT 1"));
         return status != null ? convertToVO(status) : null;
     }
 
-    private EntryRecord getEntryRecord() {
+    private EntryRecord getEntryRecord(Long userId) {
         return entryRecordMapper.selectOne(new LambdaQueryWrapper<EntryRecord>()
+                .eq(EntryRecord::getUserId, userId)
                 .orderByDesc(EntryRecord::getId)
                 .last("LIMIT 1"));
     }
 
-    private int calculateSurvivalCount(Integer totalChicks, BreedingStatusDTO dto) {
-        Integer totalDeadBefore = this.baseMapper.getTotalDeadCount();
+    private int calculateSurvivalCount(Long userId, Integer totalChicks, BreedingStatusDTO dto) {
+        Integer totalDeadBefore = this.baseMapper.getTotalDeadCount(userId);
         if (totalDeadBefore == null) {
             totalDeadBefore = 0;
         }

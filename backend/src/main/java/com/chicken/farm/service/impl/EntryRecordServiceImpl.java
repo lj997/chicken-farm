@@ -2,6 +2,7 @@ package com.chicken.farm.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.chicken.farm.common.UserContext;
 import com.chicken.farm.dto.EntryRecordDTO;
 import com.chicken.farm.entity.EntryRecord;
 import com.chicken.farm.mapper.EntryRecordMapper;
@@ -19,6 +20,11 @@ public class EntryRecordServiceImpl extends ServiceImpl<EntryRecordMapper, Entry
 
     @Override
     public EntryRecordVO saveOrUpdateEntry(EntryRecordDTO dto) {
+        Long userId = UserContext.getUserId();
+        if (userId == null) {
+            throw new RuntimeException("用户未登录");
+        }
+        
         EntryRecord existing = this.getCurrentEntryEntity();
         
         BigDecimal totalPrice = dto.getPricePerChick().multiply(BigDecimal.valueOf(dto.getTotalChicks()));
@@ -35,6 +41,7 @@ public class EntryRecordServiceImpl extends ServiceImpl<EntryRecordMapper, Entry
             this.updateById(record);
         } else {
             record = new EntryRecord();
+            record.setUserId(userId);
             record.setTotalChicks(dto.getTotalChicks());
             record.setEntryDate(dto.getEntryDate());
             record.setBreed(dto.getBreed());
@@ -58,7 +65,12 @@ public class EntryRecordServiceImpl extends ServiceImpl<EntryRecordMapper, Entry
     }
 
     private EntryRecord getCurrentEntryEntity() {
+        Long userId = UserContext.getUserId();
+        if (userId == null) {
+            return null;
+        }
         return this.getOne(new LambdaQueryWrapper<EntryRecord>()
+                .eq(EntryRecord::getUserId, userId)
                 .orderByDesc(EntryRecord::getId)
                 .last("LIMIT 1"));
     }

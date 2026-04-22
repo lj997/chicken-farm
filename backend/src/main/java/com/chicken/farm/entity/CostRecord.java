@@ -15,6 +15,8 @@ public class CostRecord {
     @TableId(type = IdType.AUTO)
     private Long id;
     
+    private Long userId;
+    
     private LocalDate recordDate;
     
     private String category;
